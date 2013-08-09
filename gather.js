@@ -6,24 +6,24 @@ var _ = require('underscore');
 var config = require('./config');
 var processor = require('./process');
 
-// var TIME_BETWEEN_REQUESTS = 60*1000;
-var TIME_BETWEEN_REQUESTS = 300;//TODO: change to once a minute
+var TIME_BETWEEN_REQUESTS = 60*1000;
+// var TIME_BETWEEN_REQUESTS = 300;//TODO: change to once a minute
 
 var twit = new twitter(config.twitter);
 
 //mockups for testing
-twit.getFriendsIds = function(id, cb){
-  id = id || '' + '';
-  setTimeout(function(){
-    cb(null, [id+1,id+2,id+3,id+4,id+5]);
-  }, 100);
-};
-twit.getFollowersIds = function(id, cb){
-  id = id || '' + '';
-  setTimeout(function(){
-    cb(null, [id+6,id+7,id+8,id+9]);
-  }, 100);
-};
+// twit.getFriendsIds = function(id, cb){
+//   id = id || '' + '';
+//   setTimeout(function(){
+//     cb(null, [id+1,id+2,id+3,id+4,id+5]);
+//   }, 100);
+// };
+// twit.getFollowersIds = function(id, cb){
+//   id = id || '' + '';
+//   setTimeout(function(){
+//     cb(null, [id+6,id+7,id+8,id+9]);
+//   }, 100);
+// };
 
 // rate limit a function returning a promise. Calls are queued up and executed at the
 // rate specified
@@ -71,8 +71,8 @@ function getFriendsIds(id){
       console.log(err);
       deferred.reject(err);
     }else{
-      // deferred.resolve(friends);
-      deferred.resolve(_.take(friends, 5));
+      deferred.resolve(friends);
+      // deferred.resolve(_.take(friends, 5));
     }
   });
   return deferred.promise;
@@ -86,7 +86,7 @@ function getFollowersIds(id){
       deferred.reject(err);
     }else{
       deferred.resolve(followers);
-      deferred.resolve(_.take(followers, 5));
+      // deferred.resolve(_.take(followers, 5));
     }
   });
   return deferred.promise;
@@ -130,11 +130,11 @@ function unfollow(id){
 
 var ids = {};
 function addFollowers(followers){
-  // return processor.addFollowers(followersOfFriend);
-  return when.map(followers, function(follower){
-    ids[follower] = 'FolOfFr';
-    return when.resolve(follower);
-  });
+  return processor.addFollowers(followers);
+  // return when.map(followers, function(follower){
+  //   ids[follower] = 'FolOfFr';
+  //   return when.resolve(follower);
+  // });
 }
 
 function gather(){
@@ -142,7 +142,7 @@ function gather(){
     console.log('Direct friends: '+friends.length);
     return when.map(friends, function(friend){
       return getFollowersIds(friend).then(function(followersOfFriend){
-        addFollowers(followersOfFriend);
+        return addFollowers(followersOfFriend);
       });
       /*
       // logic to get followers of friends of friends
@@ -168,4 +168,5 @@ function gather(){
 gather().then(function(){
   console.log('Gathering finished');
   console.log(ids);
+  process.exit(0);
 });
