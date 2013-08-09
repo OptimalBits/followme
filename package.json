@@ -2,6 +2,7 @@
   "name": "followme",
   "version": "0.0.1",
   "description": "followme ========",
+  "private": "true",
   "main": "followme.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -22,6 +23,8 @@
   },
   "dependencies": {
     "when": "~2.3.0",
-    "redis": "~0.8.4"
+    "redis": "~0.8.4",
+    "ntwitter": "~0.5.0",
+    "underscore": "~1.5.1"
   }
 }
