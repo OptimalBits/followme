@@ -47,6 +47,17 @@ module.exports.processFollower = function processFollower(followFn){
   });
 }
 
+module.exports.processingCount = function(){
+  var defer = when.defer();
+  
+  client.llen(processingList, function(err, len){
+    if(err) defer.reject(err);
+    else defer.resolve(len);
+  });
+  
+  return defer.promise;
+}
+
 /**
   Removes oldest friend in the processingList
 */

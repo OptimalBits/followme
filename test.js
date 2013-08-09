@@ -23,10 +23,14 @@ describe("Follow Me", function(){
   });
 
   it('Purge friends', function(done){
-    process.purgeFriend(function(followerId){
-      expect(followerId).to.be.equal('1');
-      return when.resolve();
-    }).then(done);
+    process.processingCount().then(function(count){
+      expect(count).to.be(1);
+    }).then(function(){
+      process.purgeFriend(function(followerId){
+        expect(followerId).to.be.equal('1');
+        return when.resolve();
+      }).then(done);
+    });
   });
 
 });
