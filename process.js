@@ -28,21 +28,34 @@ module.exports.addFollowers = function addFollowers(followerIds){
 */
 module.exports.processFollower = function processFollower(followFn){
   return getFollower().then(function(followerId){
-    return followFn(followerId).then(function(){
-      var defer = when.defer();
+    if(followerId){
+      return followFn(followerId).then(function(){
+        var defer = when.defer();
       
-      var multi = client.multi();
-      multi
-        .lpush(processingList, followerId)
-        .sadd(processedSet, followerId)
-        .exec(function(err, count){
-        if(err) defer.reject();
-        else defer.resolve(count);
+        var multi = client.multi();
+        multi
+          .lpush(processingList, followerId)
+          .sadd(processedSet, followerId)
+          .exec(function(err, count){
+            if(err) defer.reject();
+            else defer.resolve(count);
+          });
+      
+          return defer.promise;
       });
-      
-      return defer.promise;
-    });
+    }
   });
+}
+
+module.exports.processingCount = function(){
+  var defer = when.defer();
+  
+  client.llen(processingList, function(err, len){
+    if(err) defer.reject(err);
+    else defer.resolve(len);
+  });
+  
+  return defer.promise;
 }
 
 /**
@@ -57,7 +70,9 @@ module.exports.purgeFriend = function purgeFriend(unfollowFn){
   });
   
   return defer.promise.then(function(followerId){
-    return unfollowFn(followerId);
+    if(followerId){
+      return unfollowFn(followerId);
+    }
   });
 }
 
